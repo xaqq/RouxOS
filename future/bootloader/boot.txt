@@ -1,0 +1,27 @@
+- CS:IP (CS is Code Segment, IP is Instruction Pointer) points to the
+  address where the processor will fetch the next byte of code.
+- SS:SP (SS is Stack Segment, SP is Stack Pointer) points to the address
+  of the top of the stack, i.e. the most recently pushed byte.
+- DS:SI (DS is Data Segment, SI is Source Index) is often used to point
+  to string data that is about to be copied to ES:DI.
+- ES:DI (ES is Extra Segment, DI is Destination Index) is typically used
+  to point to the destination for a string copy, as mentioned above.
+
+Adressage 16 bits:
+- Le bus de donnee fait 20 bits (5 octets). Le selecteur (CS,SS,DS,ES)
+  correspond donc aux 4 bits "haut" de l'adresse. On y ajoute l'offset.
+  Un segment fait donc la taille de l'offset, soit 64k (2^16)
+
+Boot (PepinOS):
+- Registres ds && es initialises a 0x07C0 (L'adresse ou le secteur de boot,
+  qui fait 512 octets, est copie est 0x7C00)
+- Stack initialisee au bon vouloir.
+- cs initialise a 0x07C0 (Par le BIOS)
+- ip initialise a 0x0
+
+Appel du loader multiboot (so far, GRUB).
+Etat:
+- Protected mode (Le fichier doit etre 32 bits)
+- A20 enabled (Same reason)
+- Les segments sont a refaire (Si overwrite, triple fault. OWAI.)
+- On jump directement vers le main. Easy as your gf.
