@@ -2,6 +2,8 @@
 ================================ RouxOS CodingStyle ================================
 ====================================================================================
 
+0) This is a draft.
+
 I) Naming:
 - I use UpperCamelCase for class Name, file name, lambda and object,
   and lowerCamelCase for member function naming.
@@ -30,8 +32,8 @@ protected:
 };
 
 Then you can either forward declare it in your cpp file, or in your header file
-if it's a template. Forward declaration should be used as much as possible, as it
-will reduce compile time.
+if it's a template.
+Forward declaration should be used as much as possible, as it will reduce compile time.
 
 
 
