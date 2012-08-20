@@ -1,0 +1,9 @@
+Prerequise:
+- You must be root, as we're using losetup to mount the floppy on a loop device.
+- an Unix-like system (we mkdir -p /mnt/loop & using /dev/loop0)
+- g++ / gcc / nasm / make / m4
+- qemu-kvm (or qemu, see change scripts/test.sh)
+
+I) Howto test the kernel:
+- Make sure you have "floppyA". If you don't, checkout it.
+- Simply run "make test". This will remake the kernel then mount it on /dev/loop0
