@@ -34,7 +34,8 @@ void	kmain(void* mb_infos)
            .append("\n"));
 
     //assert((size_t)&kmain == 0x1006F4);
-    assert((size_t)mb_infos == 0x31334);
+    //assert((size_t)mb_infos == 0x31334);
 
+    kprint("Entering infinite loop...\n");
     while (42);
 }

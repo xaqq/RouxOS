@@ -36,11 +36,21 @@
 # define SUCCESS	0
 # define FAILURE	(!SUCCESS)
 
+
+/* ecrit un octet sur un port */
+#define outb(port, value)       asm volatile ("outb %%al, %%dx" :: "d" (port), "a" (value))
+
+/* ecrit un octet sur un port et marque une temporisation  */
+#define outbp(port, value)      asm volatile ("outb %%al, %%dx; jmp 1f; 1:" :: "d" (port), "a" (value))
+
+/* lit un octet sur un port */
+#define inb(port, var)          asm volatile ("inb %%dx, %%al" : "=a" (var) : "d" (port))
+
 /*
  * Concurrency.
  * Move in a separate header once we get something good.
  */
 void	lock(int *);
-int	unlock(int *);
+int     unlock(int *);
 
 #endif /* !__KBASE_HH__ */

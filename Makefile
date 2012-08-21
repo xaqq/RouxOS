@@ -7,7 +7,8 @@ vpath %.cpp ./CXXABI/
 vpath %.cpp ./src/
 
 ASRC=	Boot.asm		\
-	BootUtils.asm
+	BootUtils.asm		\
+	InterruptVectors.asm
 
 CSRC=
 
@@ -16,6 +17,7 @@ CPPSRC=	\
 	PureVirtual.cpp		\
 	\
 	BootProcess.cpp		\
+	Interrupts.cpp		\
 	Main.cpp		\
 	PrintEngine.cpp		\
 	\
@@ -93,45 +95,64 @@ clean:
 fclean:		clean
 		$(RM) $(KNAME)
 
-objs/%.o : %.c
+objs:
+		@mkdir -p $@
+
+objs/%.o : %.c objs
 		@printf $(GREEN_COLOR)"\t - GCC %s"$(RED_COLOR)"\n" $<
 		$(GCC) $(CFLAGS) $(CINCLUDES) -c $< -o $@
 
-objs/%.o : %.cpp
+objs/%.o : %.cpp objs
 		@printf $(GREEN_COLOR)"\t - G++ %s"$(RED_COLOR)"\n" $<
 		$(GXX) $(CXXFLAGS) $(CXXINCLUDES) -c $< -o $@
 
-objs/%.o : %.asm
+objs/%.o : %.asm objs
 		@printf $(GREEN_COLOR)"\t - NASM %s"$(RED_COLOR)"\n" $<
 		$(ASM) $(ASMFLAGS) $(ASMINCLUDES) $< -o $@
 
 re:		fclean \
 		all
 
-.PHONY: all re clean fclean
-
 # Reset color in term.
 reset:
 		@printf $(NO_COLOR)
 
-################## SPECIAL... USE IT WITH CAUTION ###################
-GRUBPATH	=	/mnt/dump/boot/grub/
+################## For testing ###################
+GRUBPATH	=	/boot/grub
 FLOPPYNAME	=	floppyA
-TESTPATH	=	/mnt/loop/
-LOOPPATH	=	/dev/loop0
-init_floppy:
-	@./scripts/grub_floppy_install.sh $(TESTPATH) $(LOOPPATH) \
-	$(GRUBPATH) $(FLOPPYNAME)
+TESTPATH	=	loop
+# NB: Heredoc not working on Makefile...
+GRUBINSTALLSCRIPT =\#!/bin/sh\n grub --device-map=$(TESTPATH)/grub/device.map $(FLOPPYNAME) <<EOF\nroot (fd0) floppyA\nsetup (fd0)\nquit\nEOF
+GRUBMENULST	=title RouxOS!\nkernel /RouxOS\nboot
 
-test:	re
+init_floppy:
+	@dd if=/dev/zero of=$(FLOPPYNAME) bs=512 count=2880
+	@mke2fs $(FLOPPYNAME)
 	@mkdir -p $(TESTPATH)
-	@./scripts/mount.sh $(TESTPATH) $(LOOPPATH) $(FLOPPYNAME)
-	@./scripts/update.sh $(TESTPATH) $(LOOPPATH) $(FLOPPYNAME) $(KNAME)
-	@./scripts/umount.sh $(TESTPATH) $(LOOPPATH)
-	@./scripts/test.sh $(LOOPPATH) $(FLOPPYNAME)
+	@mount -t ext2 $(FLOPPYNAME) $(TESTPATH)
+	@mkdir -p $(TESTPATH)/grub
+	@cp $(GRUBPATH)/stage{1,2} $(TESTPATH)/grub/
+	@echo "(fd0) $(FLOPPYNAME)" > $(TESTPATH)/grub/device.map
+	@echo -e '$(GRUBINSTALLSCRIPT)' > .tmp.sh && chmod +x .tmp.sh && ./.tmp.sh && rm -rf .tmp.sh
+	@echo -e "$(GRUBMENULST)" > $(TESTPATH)/grub/menu.lst
+	@umount $(TESTPATH)
+
+
+$(FLOPPYNAME):	$(KNAME)
+	@test -f $@ || $(MAKE) init_floppy
+	@mkdir -p $(TESTPATH)
+	@mount -t ext2 -o loop $@ $(TESTPATH)
+	@cp -v $< $(TESTPATH)
+	@umount $(TESTPATH)
+
+test:	$(FLOPPYNAME)
+	@qemu-kvm -m 512 -fda $(FLOPPYNAME)
 
 mount:
-	@./scripts/mount.sh $(TESTPATH) $(LOOPPATH) $(FLOPPYNAME)
+	@mkdir -p $(TESTPATH)
+	@mount -t ext2 -o loop $(FLOPPYNAME) $(TESTPATH)
 
 umount:
-	@./scripts/umount.sh $(TESTPATH) $(LOOPPATH)
+	@umount $(TESTPATH)
+
+.PHONY: all re clean fclean $(FLOPPYNAME)

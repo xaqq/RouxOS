@@ -535,10 +535,17 @@ void		BLMalloc::showAllocatedMemory(void)
            .append(StaticString::number(((char*)minfos.end + sizeof(t_header))))
            .append("\n"));
     it = (t_header*)minfos.start;
+    kprint(StaticString("Dibbs: 0x").append(StaticString::number((char*)minfos.dibbs)).append("\n"));
     while (it->curr_s)
     {
         curr = (char*)it + sizeof(t_header);
         next = (char*)it + TVAL(it->curr_s) + sizeof(t_header);
+
+        kprint(StaticString("Curr: 0x").append(StaticString::number((char*)curr)).append("\n"));
+        kprint(StaticString("Next: 0x").append(StaticString::number((char*)next)).append("\n"));
+        kprint(StaticString("Val: 0x").append(StaticString::number(TVAL(it->curr_s))).append("\n"));
+        while (42);
+
 
         if (!(it->curr_s & FREED_FLAG)) {
             kprint("Freed\n");

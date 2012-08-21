@@ -3,7 +3,6 @@ CXXABI/PureVirtual.cpp
 future/bootloader/boot.asm
 future/bootloader/boot.txt
 future/c++_basefiles/atexit.cpp
-future/c++_basefiles/pure_virtual.cpp
 future/Rules.make
 includes/BLMalloc.hh
 includes/Boot.hh
@@ -23,13 +22,8 @@ includes/StaticString.hh
 includes/String.hh
 includes/Types.hh
 includes/VaArgs.hh
-scripts/grub_floppy_install.sh
 scripts/linker_32.ld
 scripts/linker_64.ld
-scripts/mount.sh
-scripts/test.sh
-scripts/umount.sh
-scripts/update.sh
 src/BLMalloc.cpp
 src/Boot.asm
 src/BootProcess.cpp
@@ -43,7 +37,6 @@ src/Spinlock.cpp
 src/StaticString.cpp
 src/String.cpp
 CodingStyle
-floppyA
 HOWTO
 includes/Iterators.hh
 includes/Containers.hh
