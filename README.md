@@ -2,7 +2,7 @@ RouxOS
 ======
 
 Just a student kernel project. Developped in C++11.
-It aims to be a monolithic, multi-threaded.
+It aims to be a microlithic, multi-threaded.
 
 Where am I going ?
 I simply want something functional. Not a kick-ass OS
